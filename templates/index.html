@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>YouTube Downloader</title>
+  <style>
+    .loader { display: none; align-items: center; }
+    .hidden { display: none; }
+    .video-info, .format-select, #convertBtn, #downloadBtn { margin-top: 15px; }
+  </style>
+   <!-- <script src="https://unpkg.com/@lottiefiles/dotlottie-web@latest/dist/dotlottie.min.js"></script> -->
+</head>
+<body>
+  <h2>YouTube Downloader</h2>
+  <form id="urlForm">
+    <input type="text" id="urlInput" name="url" placeholder="Paste YouTube URL" required>
+    <button type="submit">Start</button>
+  </form>
+
+  <div class="loader" id="infoLoader" style="align-items: center;">
+    <div>🔄 Loading video info</div> 
+    <canvas
+      id="dotlottie-canvas"
+      class="dotlottie-canvas"
+      style=" width: 200px; height:auto;transform: translateX(-35%);">
+   </canvas>
+  </div>
+     
+     <!-- <script src="https://unpkg.com/@lottiefiles/dotlottie-web@latest/dist/dotlottie.min.js"></script> -->
+
+     <script type="module">
+      import { DotLottie } from "https://cdn.jsdelivr.net/npm/@lottiefiles/dotlottie-web/+esm";
+
+const canvases = document.querySelectorAll(".dotlottie-canvas");
+
+canvases.forEach((canvas) => {
+  new DotLottie({
+    autoplay: true,
+    loop: true,
+    canvas: canvas,
+    src: "https://lottie.host/1c1f95b9-f080-46c3-a624-6fba15458d34/WoI3Lmy3XF.lottie",
+  });
+});
+    </script>
+
+  <div id="videoData" class="hidden">
+    <img id="thumbnail" width="200"><br>
+    <b>Title:</b> <span id="title"></span><br>
+    <b>Duration:</b> <span id="duration"></span><br>
+
+    <div class="format-select">
+      <select id="formatSelect">
+        <optgroup label="🎬 Video">
+          <option value="video-1080">mp4 1080p</option>
+          <option value="video-720">mp4 720p</option>
+          <option value="video-360">mp4 360p</option>
+        </optgroup>
+        <optgroup label="🎵 Audio">
+          <option value="audio-320">mp3 320kbps</option>
+          <option value="audio-256">mp3 256kbps</option>
+          <option value="audio-192">mp3 192kbps</option>
+        </optgroup>
+      </select>
+    </div>
+
+    <button id="convertBtn">Convert</button>
+    <div class="loader" id="convertLoader">
+      <div>🔄 Converting</div>
+      <canvas
+      id="dotlottie-canvas"
+      class="dotlottie-canvas"
+      style=" width: 200px; height:auto;transform: translateX(-35%);">
+   </canvas>
+    </div>
+    <a id="downloadBtn" class="hidden" href="#"><button>⬇️ Download File</button></a>
+  </div>
+
+  <script>
+    // let loadingVideoOffLeft = document.getElementById("infoLoader").getBoundingClientRect().left;
+    // console.log(loadingVideoOffLeft);
+    const urlForm = document.getElementById('urlForm');
+    const urlInput = document.getElementById('urlInput');
+    const infoLoader = document.getElementById('infoLoader');
+    const videoData = document.getElementById('videoData');
+    const titleEl = document.getElementById('title');
+    const durationEl = document.getElementById('duration');
+    const thumbnailEl = document.getElementById('thumbnail');
+    const convertBtn = document.getElementById('convertBtn');
+    const convertLoader = document.getElementById('convertLoader');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const formatSelect = document.getElementById('formatSelect');
+
+    urlForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      infoLoader.style.display = 'flex';
+      // infoLoader.style.alignItems = 'center';
+      videoData.classList.add('hidden');
+      downloadBtn.classList.add('hidden');
+
+      const formData = new FormData();
+      formData.append('url', urlInput.value);
+
+      const res = await fetch('/get_info', { method: 'POST', body: formData });
+      const data = await res.json();
+      infoLoader.style.display = 'none';
+
+      if (data.error) {
+        alert("Error: " + data.error);
+        return;
+      }
+
+      titleEl.textContent = data.title;
+      durationEl.textContent = data.duration;
+      thumbnailEl.src = data.thumbnail;
+      videoData.classList.remove('hidden');
+    });
+
+    convertBtn.addEventListener('click', async () => {
+      convertBtn.style.display = 'none';
+      convertLoader.style.display = 'flex';
+      downloadBtn.classList.add('hidden');
+
+      const [type, quality] = formatSelect.value.split('-');
+
+      const formData = new FormData();
+      formData.append('url', urlInput.value);
+      formData.append('format', type);
+      formData.append('quality', quality);
+
+      const res = await fetch('/download', { method: 'POST', body: formData });
+      const blob = await res.blob();
+
+      const downloadUrl = window.URL.createObjectURL(blob);
+      downloadBtn.href = downloadUrl;
+      downloadBtn.download = `${titleEl.textContent}.${type === 'audio' ? 'mp3' : 'mp4'}`;
+      downloadBtn.classList.remove('hidden');
+
+      convertLoader.style.display = 'none';
+      convertBtn.style.display = 'inline';
+    });
+  </script>
+  <!-- <script type="module">
+    import { DotLottie } from '@lottiefiles/dotlottie-web';
+
+const dotLottie = new DotLottie({
+    autoplay: true,
+    loop: true,
+    canvas: document.querySelector('#dotlottie-canvas'),
+    src: "<https://lottie.host/YOUR_ANIMATION_ID.lottie>", // replace with your .lottie or .json file URL
+});
+  </script> -->
+</body>
+</html>
