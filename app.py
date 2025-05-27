@@ -73,6 +73,9 @@ import os
 app = Flask(__name__)
 DOWNLOAD_FOLDER = "downloads"
 
+
+
+
 # Check if running on Render (or any production environment)
 if os.environ.get('RENDER'):
     FFMPEG_PATH = "ffmpeg"  # Render (or Linux server) uses global ffmpeg
@@ -128,6 +131,7 @@ def download():
                 'noplaylist': True,
                 'quiet': True,
                 'merge_output_format': 'mp3',
+                'cookiefile': 'cookies/cookies.txt',
                 'http_headers': {'User-Agent': 'Mozilla/5.0'}
             }
         else:
@@ -138,6 +142,7 @@ def download():
                 'noplaylist': True,
                 'quiet': True,
                 'merge_output_format': 'mp4',
+                'cookiefile': 'cookies/cookies.txt',
                 'http_headers': {'User-Agent': 'Mozilla/5.0'}
             }
 
