@@ -1,69 +1,4 @@
-# from flask import Flask, render_template, request, send_from_directory
-# import yt_dlp
-# import os
 
-# app = Flask(__name__)
-# DOWNLOAD_FOLDER = "downloads"
-# FFMPEG_PATH = "ffmpeg"  # Ensure ffmpeg is installed and available in PATH
-
-# # Create downloads folder if not exists
-# os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
-
-# @app.route('/')
-# def index():
-#     return render_template('index.html')
-
-# @app.route('/download', methods=['POST'])
-# def download():
-#     url = request.form['url']
-#     format_type = request.form['format']
-#     audio_quality = request.form.get('audio_quality', '192')
-#     video_quality = request.form.get('video_quality', '720')
-#     ffmpeg_path = "C:/ffmpeg/bin/ffmpeg.exe"
-
-#     try:
-#         if format_type == 'audio':
-#             ydl_opts = {
-#                 'format': 'bestaudio/best',
-#                 'ffmpeg_location': ffmpeg_path,
-#                 'postprocessors': [{
-#                     'key': 'FFmpegExtractAudio',
-#                     'preferredcodec': 'mp3',
-#                     'preferredquality': audio_quality,
-#                 }],
-#                 'outtmpl': os.path.join(DOWNLOAD_FOLDER, '%(title)s.%(ext)s'),
-#                 'noplaylist': True,
-#                 'quiet': True,
-#                 'merge_output_format': 'mp3',
-#                 'http_headers': {
-#                     'User-Agent': 'Mozilla/5.0'
-#                 }
-#             }
-#         else:
-#             ydl_opts = {
-#                 'format': f"bestvideo[height<={video_quality}][ext=mp4]+bestaudio[ext=m4a]/mp4",
-#                 'ffmpeg_location': ffmpeg_path,
-#                 'outtmpl': os.path.join(DOWNLOAD_FOLDER, '%(title)s.%(ext)s'),
-#                 'noplaylist': True,
-#                 'quiet': True,
-#                 'merge_output_format': 'mp4',
-#                 'http_headers': {
-#                     'User-Agent': 'Mozilla/5.0'
-#                 }
-#             }
-
-#         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-#             info = ydl.extract_info(url, download=True)
-#             filename = ydl.prepare_filename(info)
-#             filename = os.path.splitext(filename)[0] + ('.mp3' if format_type == 'audio' else '.mp4')
-
-#         return send_from_directory(DOWNLOAD_FOLDER, os.path.basename(filename), as_attachment=True)
-
-#     except Exception as e:
-#         return f"❌ Error: {str(e)}"
-
-# if __name__ == '__main__':
-#     app.run(debug=True)
 
 
 from flask import Flask, render_template, request, jsonify, send_from_directory
@@ -84,6 +19,15 @@ else:
 
 
 os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
+
+@app.route('/debug-cookies')
+def debug_cookies():
+    try:
+        with open('cookies/cookies.txt', 'r') as f:
+            lines = f.readlines()
+        return f"✅ cookies.txt found. Lines: {len(lines)}"
+    except FileNotFoundError:
+        return "❌ cookies.txt not found."
 
 @app.route('/')
 def index():
@@ -166,3 +110,4 @@ def download():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
+
