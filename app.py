@@ -75,7 +75,8 @@ def download():
                 'noplaylist': True,
                 'quiet': True,
                 'merge_output_format': 'mp3',
-                'cookiefile': 'cookies/cookies.txt',
+                'cookiefile': os.path.join('cookies', 'cookies.txt'),
+                # 'cookiefile': 'cookies/cookies.txt',
                 'http_headers': {'User-Agent': 'Mozilla/5.0'}
             }
         else:
@@ -86,7 +87,8 @@ def download():
                 'noplaylist': True,
                 'quiet': True,
                 'merge_output_format': 'mp4',
-                'cookiefile': 'cookies/cookies.txt',
+                'cookiefile': os.path.join('cookies', 'cookies.txt'),
+                # 'cookiefile': 'cookies/cookies.txt',
                 'http_headers': {'User-Agent': 'Mozilla/5.0'}
             }
 
